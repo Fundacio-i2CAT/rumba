@@ -1,6 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 import { HttpModule } from '@angular/http';
 import { HttpClientModule } from '@angular/common/http';
@@ -27,7 +28,9 @@ import { EditorNiceComponent } from './editor-nice/editor-nice.component';
 
 import { VideosServiceService } from './videos-service.service';
 import { MargindeltaDirective } from './margindelta.directive';
+
 import { ClipboardModule } from 'ngx-clipboard';
+import {ToasterModule, ToasterService} from 'angular5-toaster';
 
 
 @NgModule({
@@ -51,8 +54,10 @@ import { ClipboardModule } from 'ngx-clipboard';
     AppRoutingModule,
     FormsModule,
     ClipboardModule,
+    BrowserAnimationsModule,
     HttpModule,
     HttpClientModule,
+    ToasterModule,
     NgbModule.forRoot(),
   ],
   exports: [

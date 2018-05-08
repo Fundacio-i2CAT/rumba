@@ -8,12 +8,15 @@ import * as moment from 'moment';
 
 import { ClipboardModule } from 'ngx-clipboard';
 
+import { ToasterService } from 'angular5-toaster';
+
 @Component({
   selector: 'app-session-close',
   templateUrl: './session-close.component.html',
-  styleUrls: ['./session-close.component.css']
+  styleUrls: ['./session-close.component.css', '../../../node_modules/angular5-toaster/src/toaster.css']
 })
 export class SessionCloseComponent implements OnInit {
+
 
   activatedHelp: boolean = false;
   sessionId: string;
@@ -28,7 +31,7 @@ export class SessionCloseComponent implements OnInit {
 
   isImageLoading: boolean = false;
 
-  constructor(private route: ActivatedRoute, private sessionSrv: SessionService, private router: Router) { }
+  constructor(private route: ActivatedRoute, private sessionSrv: SessionService, private router: Router, private toasterService: ToasterService) {}
 
   imageToShow: any;
 
@@ -93,6 +96,7 @@ export class SessionCloseComponent implements OnInit {
 
   onCopyToClipboard() {
     console.log("Edition link saved to clipboard.");
+    this.toasterService.pop("success", "toma ya");
   }
 
 }
