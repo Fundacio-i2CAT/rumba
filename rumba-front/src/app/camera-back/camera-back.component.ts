@@ -31,6 +31,13 @@ export class CameraBackComponent implements OnInit {
 
   ngOnInit() {
 
+    const video = document.getElementById('myvideo');
+    console.log(video);
+    // Get access to the camera!
+    // Not adding `{ audio: true }` since we only want video now
+    navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
+        video.srcObject = stream;
+    });
   }
 
   setCounter() {
@@ -271,13 +278,9 @@ export class CameraBackComponent implements OnInit {
 									Janus.debug(" ::: Got a local stream :::");
 									Janus.debug(stream);
 
-                  Janus.attachMediaStream(document.getElementById('myvideo'), stream);
+                  // Janus.attachMediaStream(document.getElementById('myvideo'), stream);
 
                   document.getElementById('myvideo').setAttribute('muted', "muted");
-
-
-
-
 
 								},
 								onremotestream: function(stream) {
