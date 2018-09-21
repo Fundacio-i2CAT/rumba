@@ -36,18 +36,15 @@ export class CameraBackComponent implements OnInit {
     navigator.mediaDevices.enumerateDevices()
     .then(devices => {
       devices.forEach(function (device) {
-        console.log(device.kind + ": " + device.label +
-          " id = " + device.deviceId);
-        if (device.kind == "videoinput") {
-            if (device.label.match('back')) {
+        console.log(device.kind + ": " + device.label + " id = " + device.deviceId);
+        if (device.kind == "videoinput" && device.label.match('back')) {
                 iidd = device.deviceId;
-            }
         }
       });
     });
-
+    console.log(iidd);
     const constraints = {
-      deviceId: { exact: iidd  }
+      deviceId: { ideal: iidd  }
     };
     const video = document.getElementById('myvideo');
     console.log(video);
