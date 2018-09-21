@@ -22,6 +22,7 @@ export class CameraBackComponent implements OnInit {
   @ViewChild('fullVideo') videoElem: ElementRef;
   fullScreen: boolean = false;
   allowRecording: boolean = true;
+  camera_device = undefined;
 
   seconds: any = 0;
   minutes: number = 0;
@@ -31,11 +32,28 @@ export class CameraBackComponent implements OnInit {
 
   ngOnInit() {
 
+    let iidd = undefined;
+    navigator.mediaDevices.enumerateDevices()
+    .then(devices => {
+      devices.forEach(function (device) {
+        console.log(device.kind + ": " + device.label +
+          " id = " + device.deviceId);
+        if (device.kind == "videoinput") {
+            if (device.label.match('back')) {
+                iidd = device.deviceId;
+            }
+        }
+      });
+    });
+
+    const constraints = {
+      deviceId: { exact: iidd  }
+    };
     const video = document.getElementById('myvideo');
     console.log(video);
     // Get access to the camera!
     // Not adding `{ audio: true }` since we only want video now
-    navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
+    navigator.mediaDevices.getUserMedia( {video: constraints} ).then(function(stream) {
         video.srcObject = stream;
     });
   }
