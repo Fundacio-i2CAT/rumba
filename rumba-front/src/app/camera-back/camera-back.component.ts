@@ -28,7 +28,6 @@ export class CameraBackComponent implements OnInit, OnDestroy {
   counter: string = '00:00';
   alive: boolean = true;
   interval: number = 1000;
-  janus;
 
   constructor(
     private record: RecordService,
@@ -37,6 +36,7 @@ export class CameraBackComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+
     this.janus = Janus.init({
       debug: "all", callback: function () {
         // Use a button to start the demo
