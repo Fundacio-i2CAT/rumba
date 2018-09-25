@@ -1,8 +1,9 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {RecordService} from '../record.service';
-import * as $ from 'jquery';
 import '../../assets/serverdate/ServerDate.js';
 import {AppConfig} from '../app-config';
+import {TimerObservable} from "rxjs/observable/TimerObservable";
+import {SessionService} from "../session/session.service";
 
 declare var Janus: any;
 declare var ServerDate: any;
@@ -12,25 +13,49 @@ declare var ServerDate: any;
   templateUrl: './camera-back.component.html',
   styleUrls: ['./camera-back.component.css']
 })
-export class CameraBackComponent implements OnInit {
+export class CameraBackComponent implements OnInit, OnDestroy {
 
   isRecording: boolean = false;
   videoPath: any = undefined;
   videoId: string = undefined;
   @ViewChild('fullVideo') videoElem: ElementRef;
   fullScreen: boolean = false;
-  allowRecording: boolean = true;
+  allowRecording: boolean = false;
   camera_device = undefined;
 
   seconds: any = 0;
   minutes: number = 0;
   counter: string = '00:00';
+  alive: boolean = true;
+  interval: number = 1000;
+  janus;
 
-  constructor(private record: RecordService) {
+  constructor(
+    private record: RecordService,
+    private sessionService: SessionService,
+  ) {
   }
 
   ngOnInit() {
-
+    this.janus = Janus.init({
+      debug: "all", callback: function () {
+        // Use a button to start the demo
+        // Make sure the browser supports WebRTC
+        if (!Janus.isWebrtcSupported()) {
+          return;
+        }
+      }
+    });
+    TimerObservable.create(0, this.interval)
+      .takeWhile(() => this.alive)
+      .subscribe(() => {
+        this.sessionService.getSession()
+          .subscribe((data) => {
+            if (data.state === "Active") {
+              this.allowRecording = true;
+            }
+          });
+      });
     let iidd = undefined;
     navigator.mediaDevices.enumerateDevices()
       .then(devices => {
@@ -52,6 +77,11 @@ export class CameraBackComponent implements OnInit {
         });
       });
 
+
+  }
+
+  ngOnDestroy() {
+    this.alive = false;
   }
 
   setCounter() {
@@ -98,7 +128,6 @@ export class CameraBackComponent implements OnInit {
   }
 
   checkButton() {
-    this.isRecording = !this.isRecording;
   }
 
   startRecording() {
@@ -111,16 +140,20 @@ export class CameraBackComponent implements OnInit {
           this.configureJanus(this.videoPath);
           this.setCounter();
         }
-      )
+      );
+    this.isRecording = !this.isRecording;
   }
 
   stopRecording() {
+    console.log("STOP RECORDING");
+    this.janus.destroy();
     this.record.stopRecordingVideo(this.videoId)
       .subscribe(
         (response) => {
           console.log(response);
         }
-      )
+      );
+    this.isRecording = !this.isRecording;
   }
 
 
@@ -230,105 +263,97 @@ export class CameraBackComponent implements OnInit {
             echotest.send({"message": body, "jsep": jsep});
           },
           error: function (error) {
-            Janus.error("WebRTC error:", error);
+            console.log(error);
+            // Janus.error("WebRTC error:", error);
           }
         });
     }
 
+    console.log("starting janus session")
+    // Create session
+    janus = new Janus(
+      {
+        server: server,
+        success: function () {
+          // Attach to echo test plugin
+          janus.attach(
+            {
+              plugin: "janus.plugin.echotest",
+              opaqueId: opaqueId,
+              success: function (pluginHandle) {
+                echotest = pluginHandle;
+                // Janus.log("Plugin attached! (" + echotest.getPlugin() + ", id=" + echotest.getId() + ")");
+                // Enumerate devices: that's what we're here for
+                Janus.listDevices(initDevices);
+                // We wait for the user to select the first device before making a move
+                // $('#start').removeAttr('disabled').html("Stop")
+                // 	.click(function() {
+                // 		$(this).attr('disabled', "true");
+                // 		clearInterval(bitrateTimer);
+                // 		janus.destroy();
+                // 	});
 
-    Janus.init({
-      debug: "all", callback: function () {
-        // Use a button to start the demo
-        // Make sure the browser supports WebRTC
-        if (!Janus.isWebrtcSupported()) {
-          return;
+                // $('#stop').bind('click', function () {
+                //   janus.destroy();
+                // });
+
+              },
+              error: function (error) {
+                console.error("  -- Error attaching plugin...", error);
+              },
+              consentDialog: function (on) {
+                Janus.debug("Consent dialog should be " + (on ? "on" : "off") + " now");
+
+              },
+              onmessage: function (msg, jsep) {
+                Janus.debug(" ::: Got a message :::");
+                Janus.debug(msg);
+                if (jsep !== undefined && jsep !== null) {
+                  Janus.debug("Handling SDP as well...");
+                  Janus.debug(jsep);
+                  echotest.handleRemoteJsep({jsep: jsep});
+                }
+
+              },
+              onlocalstream: function (stream) {
+                Janus.debug(" ::: Got a local stream :::");
+                Janus.debug(stream);
+
+                // Janus.attachMediaStream(document.getElementById('myvideo'), stream);
+
+                document.getElementById('myvideo').setAttribute('muted', "muted");
+
+              },
+              onremotestream: function (stream) {
+                Janus.debug(" ::: Got a remote stream :::");
+                Janus.debug(stream);
+
+              },
+              ondataopen: function (data) {
+                Janus.log("The DataChannel is available!");
+
+              },
+              ondata: function (data) {
+                Janus.debug("We got data from the DataChannel! " + data);
+
+              },
+              oncleanup: function () {
+                Janus.log(" ::: Got a cleanup notification :::");
+              }
+            });
+
+        },
+        error: function (error) {
+          console.log("error creating janus session");
+          console.log(error)
+          // Janus.error(error);
+        },
+        destroyed: function () {
+          // window.location.reload();
+          console.log('destroyed');
         }
-        // Create session
-        var janus = new Janus(
-          {
-            server: server,
-            success: function () {
-              // Attach to echo test plugin
-              janus.attach(
-                {
-                  plugin: "janus.plugin.echotest",
-                  opaqueId: opaqueId,
-                  success: function (pluginHandle) {
-                    echotest = pluginHandle;
-                    Janus.log("Plugin attached! (" + echotest.getPlugin() + ", id=" + echotest.getId() + ")");
-                    // Enumerate devices: that's what we're here for
-                    Janus.listDevices(initDevices);
-                    // We wait for the user to select the first device before making a move
-                    // $('#start').removeAttr('disabled').html("Stop")
-                    // 	.click(function() {
-                    // 		$(this).attr('disabled', "true");
-                    // 		clearInterval(bitrateTimer);
-                    // 		janus.destroy();
-                    // 	});
-
-                    $('#stop').bind('click', function () {
-                      janus.destroy();
-                    });
-
-                  },
-                  error: function (error) {
-                    console.error("  -- Error attaching plugin...", error);
-                  },
-                  consentDialog: function (on) {
-                    Janus.debug("Consent dialog should be " + (on ? "on" : "off") + " now");
-
-                  },
-                  onmessage: function (msg, jsep) {
-                    Janus.debug(" ::: Got a message :::");
-                    Janus.debug(msg);
-                    if (jsep !== undefined && jsep !== null) {
-                      Janus.debug("Handling SDP as well...");
-                      Janus.debug(jsep);
-                      echotest.handleRemoteJsep({jsep: jsep});
-                    }
-
-                  },
-                  onlocalstream: function (stream) {
-                    Janus.debug(" ::: Got a local stream :::");
-                    Janus.debug(stream);
-
-                    // Janus.attachMediaStream(document.getElementById('myvideo'), stream);
-
-                    document.getElementById('myvideo').setAttribute('muted', "muted");
-
-                  },
-                  onremotestream: function (stream) {
-                    Janus.debug(" ::: Got a remote stream :::");
-                    Janus.debug(stream);
-
-                  },
-                  ondataopen: function (data) {
-                    Janus.log("The DataChannel is available!");
-
-                  },
-                  ondata: function (data) {
-                    Janus.debug("We got data from the DataChannel! " + data);
-
-                  },
-                  oncleanup: function () {
-                    Janus.log(" ::: Got a cleanup notification :::");
-                  }
-                });
-            },
-            error: function (error) {
-              Janus.error(error);
-            },
-            destroyed: function () {
-              window.location.reload();
-              console.log('destroyed');
-            }
-          });
-
-      }
-    });
-
-
+      });
+    this.janus = janus;
+    return janus
   }
-
-
 }
