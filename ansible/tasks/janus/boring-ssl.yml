@@ -18,6 +18,7 @@
     git:
       repo: https://boringssl.googlesource.com/boringssl
       dest: /tmp/boringssl
+      version: 5b89336b4c89f7458d038141916815511f366437
   - name: Prepare BoringSSL build
     shell: "{{ item }}"
     args:
@@ -25,6 +26,8 @@
     with_items:
       - sed -i s/" -Werror"//g CMakeLists.txt
       - mkdir -p build
+  # You need a lot of virtual memory to build.
+  # Use: https://www.digitalocean.com/community/tutorials/how-to-add-swap-on-ubuntu-14-04
   - name: Build BoringSSL
     shell: "{{ item }}"
     args:
