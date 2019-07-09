@@ -39,6 +39,10 @@
     ## Backend installation ##
     ##########################
 
+  - name: Copy the code to the server
+    copy:
+      src: "{{ playbook_dir }}/../backend"
+      dest: "{{ rumba_src_folder }}//rumba/"
   - name: Install virtualenv
     become: true
     pip:
@@ -76,6 +80,10 @@
     ## Microphone detection ##
     ##########################
 
+  - name: Copy the code to the server
+    copy:
+      src: "{{ playbook_dir }}/../utils"
+      dest: "{{ rumba_src_folder }}//rumba/"
   - name: Register to microphone events
     become: true
     copy:
