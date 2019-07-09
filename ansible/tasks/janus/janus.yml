@@ -6,14 +6,10 @@
   - include_tasks: livewebsockets.yml
   - include_tasks: usrsctp.yml
 
-  - name: Create directory for Janus code
-    file:
-      path: /tmp/janus
-      state: directory
-  - name: Download Janus code
-    git:
-      repo: https://{{ bitbucket_user }}:{{ bitbucket_pass }}@bitbucket.i2cat.net/scm/rum/janus.git
-      dest: /tmp/janus
+  - name: Copy the code to the server
+    copy:
+      src: "{{ playbook_dir }}/../janus"
+      dest: /tmp/
   - name: Create directory for Janus
     become: true
     file:
