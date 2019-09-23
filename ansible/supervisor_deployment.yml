@@ -6,6 +6,12 @@
   tasks:
     - name: Test connection
       ping:
+    - name: Copy Backend config file
+      become: true
+      copy:
+        remote_src: yes
+        src: "{{ rumba_src_folder }}/rumba/backend/backend.cfg.example"
+        dest: "{{ rumba_src_folder }}/rumba/backend/backend.cfg"
     - name: Install supervisor
       become: true
       apt:
@@ -27,6 +33,11 @@
       file:
         path: /var/log/janus
         state: directory
+    - name: Copy Front config file
+      become: true
+      template:
+        src: templates/app-config.ts.tpl
+        dest: "{{ rumba_src_folder }}/rumba/rumba-front/src/app/app-config.ts"
     - name: Copy Rumba Backend config file
       become: true
       template:
