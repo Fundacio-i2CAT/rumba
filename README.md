@@ -21,7 +21,8 @@ In order to install and deploy it, following software should be already installe
 
 ### Installing
 
-1) Edit <b>variables.yml</b> file in ansible/vars folder to match your needs (please note
+1) Edit <b>variables.yml.example</b> file in ansible/vars folder and save it
+as <b>variables.yml</b> to match your needs (please note
 that `ubuntu_user` specified in this configuration file should have permision to create
 new directories under `rumba_src_folder`):
 
