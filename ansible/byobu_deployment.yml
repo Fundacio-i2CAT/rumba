@@ -1,16 +1,31 @@
 ---
-- hosts: localhost
+- hosts: all
   remote_user: "{{ ubuntu_user }}"
   vars_files:
     - vars/variables.yml
   tasks:
     - name: Test connection
       ping:
-    - name: Install byobu
+    - name: Copy Backend config file
       become: true
-      apt:
-        package: byobu
-        state: installed
-        update_cache: true
+      copy:
+        remote_src: yes
+        src: "{{ rumba_src_folder }}/rumba/backend/backend.cfg.example"
+        dest: "{{ rumba_src_folder }}/rumba/backend/backend.cfg"
+    - name: Create log folder for Janus code
+      become: true
+      file:
+        path: /var/log/janus
+        state: directory
+    - name: Copy Front config file
+      become: true
+      template:
+        src: templates/app-config.ts.tpl
+        dest: "{{ rumba_src_folder }}/rumba/rumba-front/src/app/app-config.ts"
+    - name: Render script template
+      become: true
+      template:
+        src: templates/deploy_on_byobu.sh.tpl
+        dest: "{{ rumba_src_folder }}/rumba/utils/scripts/deployment/deploy_on_byobu.sh"
     - name: Deploy software
       command: "sh {{ rumba_src_folder }}/rumba/utils/scripts/deployment/deploy_on_byobu.sh"

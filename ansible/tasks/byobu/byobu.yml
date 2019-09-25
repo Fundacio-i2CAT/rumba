@@ -1,0 +1,7 @@
+---
+  - name: Supervisor installation
+    become: true
+    apt:
+      package: byobu
+      state: present
+      update_cache: true

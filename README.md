@@ -52,7 +52,8 @@ On the bottom of the file, add the following line replacing `<ubuntu_user>` by
 
 3) Include yout target host ip address in `/etc/ansible/hosts`
 
-4) Ensure target host has ssh service enabled.
+4) Ensure target host has ssh service enabled connecting to it and permanently
+add ECDSA key fingerprint to the list of known hosts.
 
 5) Execute Ansible playbook for installing the software and its dependencies
 

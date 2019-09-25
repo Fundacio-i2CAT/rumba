@@ -2,14 +2,9 @@
   - name: Install BoringSSL dependencies
     become: true
     apt:
-      package: "{{ item }}"
+      package: ['cmake', 'golang', 'g++', 'git']
       state: present
       update_cache: true
-    with_items:
-      - cmake
-      - golang
-      - g++
-      - git
   - name: Remove clone of BoringSSL repo (if it already exists)
     file:
       path: /tmp/boringssl
