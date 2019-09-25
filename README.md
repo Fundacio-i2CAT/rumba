@@ -21,7 +21,8 @@ In order to install and deploy it, following software should be already installe
 
 ### Installing
 
-1) Edit <b>variables.yml</b> file in ansible/vars folder to match your needs (please note
+1) Edit <b>variables.yml.example</b> file in ansible/vars folder and save it
+as <b>variables.yml</b> to match your needs (please note
 that `ubuntu_user` specified in this configuration file should have permision to create
 new directories under `rumba_src_folder`):
 
@@ -51,7 +52,8 @@ On the bottom of the file, add the following line replacing `<ubuntu_user>` by
 
 3) Include yout target host ip address in `/etc/ansible/hosts`
 
-4) Ensure target host has ssh service enabled.
+4) Ensure target host has ssh service enabled connecting to it and permanently
+add ECDSA key fingerprint to the list of known hosts.
 
 5) Execute Ansible playbook for installing the software and its dependencies
 

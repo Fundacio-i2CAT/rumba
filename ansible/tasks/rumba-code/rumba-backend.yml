@@ -2,17 +2,9 @@
   - name: Install dependencies
     become: true
     apt:
-      package: "{{ item }}"
+      package: ['build-essential', 'python3-dev', 'python-dev', 'python3-pip', 'python-pip', 'libasound-dev', 'portaudio19-dev']
       state: present
       update_cache: true
-    with_items:
-      - build-essential
-      - python3-dev
-      - python-dev
-      - python3-pip
-      - python-pip
-      - libasound-dev
-      - portaudio19-dev
 
     ###########################
     ###  Mongo installation ###
