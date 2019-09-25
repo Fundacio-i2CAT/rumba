@@ -1,5 +1,5 @@
 ---
-  - name: Supervisor installation
+  - name: Byobu installation
     become: true
     apt:
       package: byobu

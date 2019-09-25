@@ -12,6 +12,6 @@
     - include_tasks: tasks/janus/janus.yml
     - include_tasks: tasks/ntp/ntp.yml
     - include_tasks: tasks/supervisor/supervisor.yml
-    - include_tasks: tasks/supervisor/byobu.yml
+    - include_tasks: tasks/byobu/byobu.yml
   handlers:
     - include: handlers/handlers.yml
