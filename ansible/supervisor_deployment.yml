@@ -6,11 +6,10 @@
   tasks:
     - name: Test connection
       ping:
-    - name: Copy Backend config file
+    - name: Template backend config file
       become: true
-      copy:
-        remote_src: true
-        src: "{{ rumba_src_folder }}/rumba/backend/backend.cfg.example"
+      template:
+        src: "templates/backend.cfg.tpl"
         dest: "{{ rumba_src_folder }}/rumba/backend/backend.cfg"
     - name: Start supervisor service
       become: true
